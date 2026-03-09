@@ -27,11 +27,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Neovim can send a JSON request to the sidecar and receive a JSON response back (echo round-trip)
   3. Closing Neovim causes the sidecar to self-terminate with no orphaned Node.js processes
   4. Sidecar logging goes to stderr only -- no stdout corruption of the message channel
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Node.js sidecar project with NDJSON protocol, echo handler, and self-termination (TDD)
+- [ ] 01-02-PLAN.md — Neovim Lua plugin wiring: auto-start, RPC, crash recovery, and integration verification
 
 ### Phase 2: Type Resolution Engine
 **Goal**: Given a file path and cursor position, the sidecar returns a complete structured type tree with no truncation
@@ -72,6 +72,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Sidecar Communication | 0/TBD | Not started | - |
+| 1. Sidecar Communication | 0/2 | Planning complete | - |
 | 2. Type Resolution Engine | 0/TBD | Not started | - |
 | 3. Panel UI and Integration | 0/TBD | Not started | - |
