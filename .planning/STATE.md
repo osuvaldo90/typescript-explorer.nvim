@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-09T23:18:54.665Z"
-last_activity: 2026-03-09 -- Completed plan 01-02 Neovim Lua plugin wiring
+status: in-progress
+stopped_at: Completed 02-01 TypeNode types and LanguageService
+last_updated: "2026-03-09T23:38:21Z"
+last_activity: 2026-03-09 -- Completed plan 02-01 TypeNode types and LanguageService
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 100
+  total_plans: 5
+  completed_plans: 3
+  percent: 60
 ---
 
 # Project State
@@ -21,33 +21,34 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-09)
 
 **Core value:** Users can see the complete, untruncated type of any TypeScript symbol instantly
-**Current focus:** Phase 1: Sidecar Communication
+**Current focus:** Phase 2: Type Resolution Engine
 
 ## Current Position
 
-Phase: 1 of 3 (Sidecar Communication) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase 1 Complete
-Last activity: 2026-03-09 -- Completed plan 01-02 Neovim Lua plugin wiring
+Phase: 2 of 3 (Type Resolution Engine)
+Plan: 1 of 3 in current phase -- COMPLETE
+Status: Executing Phase 2
+Last activity: 2026-03-09 -- Completed plan 02-01 TypeNode types and LanguageService
 
-Progress: [██████████] 100% (Phase 1)
+Progress: [██████░░░░] 60% (3/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 8.5 min
-- Total execution time: 0.28 hours
+- Total plans completed: 3
+- Average duration: 6.3 min
+- Total execution time: 0.32 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 - Sidecar Communication | 2 | 17 min | 8.5 min |
+| 2 - Type Resolution Engine | 1 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-02 (15 min)
-- Trend: ramping up
+- Last 5 plans: 01-01 (2 min), 01-02 (15 min), 02-01 (2 min)
+- Trend: fast execution
 
 *Updated after each plan completion*
 
@@ -65,6 +66,8 @@ Recent decisions affecting current work:
 - [01-01]: Separate error codes for PARSE_ERROR, UNKNOWN_METHOD, HANDLER_ERROR
 - [Phase 01-02]: SIGTERM handler added to sidecar for clean jobstop shutdown
 - [Phase 01-02]: lazy.nvim users need lazy=false for VimEnter autocmd to fire correctly
+- [02-01]: Cache LanguageService per project root (tsconfig directory), not per file
+- [02-01]: Use import.meta.url for test __dirname resolution (tsx compatibility)
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-09T23:18:54.663Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-type-resolution-engine/02-CONTEXT.md
+Last session: 2026-03-09T23:38:21Z
+Stopped at: Completed 02-01 TypeNode types and LanguageService
+Resume file: .planning/phases/02-type-resolution-engine/02-02-PLAN.md
