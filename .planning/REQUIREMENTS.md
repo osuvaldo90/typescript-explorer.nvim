@@ -69,33 +69,33 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TRES-01 | — | Pending |
-| TRES-02 | — | Pending |
-| TRES-03 | — | Pending |
-| TRES-04 | — | Pending |
-| TRES-05 | — | Pending |
-| TRES-06 | — | Pending |
-| TRES-07 | — | Pending |
-| TRES-08 | — | Pending |
-| TRES-09 | — | Pending |
-| SIDE-01 | — | Pending |
-| SIDE-02 | — | Pending |
-| SIDE-03 | — | Pending |
-| SIDE-04 | — | Pending |
-| SIDE-05 | — | Pending |
-| SIDE-06 | — | Pending |
-| PANE-01 | — | Pending |
-| PANE-02 | — | Pending |
-| PANE-03 | — | Pending |
-| PANE-04 | — | Pending |
-| PANE-05 | — | Pending |
-| PANE-06 | — | Pending |
+| SIDE-01 | Phase 1 | Pending |
+| SIDE-02 | Phase 1 | Pending |
+| SIDE-05 | Phase 1 | Pending |
+| SIDE-03 | Phase 2 | Pending |
+| SIDE-04 | Phase 2 | Pending |
+| SIDE-06 | Phase 2 | Pending |
+| TRES-01 | Phase 2 | Pending |
+| TRES-02 | Phase 2 | Pending |
+| TRES-03 | Phase 2 | Pending |
+| TRES-04 | Phase 2 | Pending |
+| TRES-05 | Phase 2 | Pending |
+| TRES-06 | Phase 2 | Pending |
+| TRES-07 | Phase 2 | Pending |
+| TRES-08 | Phase 2 | Pending |
+| TRES-09 | Phase 2 | Pending |
+| PANE-01 | Phase 3 | Pending |
+| PANE-02 | Phase 3 | Pending |
+| PANE-03 | Phase 3 | Pending |
+| PANE-04 | Phase 3 | Pending |
+| PANE-05 | Phase 3 | Pending |
+| PANE-06 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-09*
-*Last updated: 2026-03-09 after initial definition*
+*Last updated: 2026-03-09 after roadmap creation*
