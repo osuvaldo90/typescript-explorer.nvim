@@ -29,7 +29,12 @@ export function resolveAtPosition(
   const symbol = checker.getSymbolAtLocation(node);
   if (!symbol) return { node: null };
 
-  const type = checker.getTypeOfSymbol(symbol);
+  // For type aliases (e.g., `type Status = ...`), getTypeOfSymbol returns `any`.
+  // Use getDeclaredTypeOfSymbol for type alias symbols, getTypeOfSymbol for value symbols.
+  const isTypeAlias = !!(symbol.flags & ts.SymbolFlags.TypeAlias);
+  const type = isTypeAlias
+    ? checker.getDeclaredTypeOfSymbol(symbol)
+    : checker.getTypeOfSymbol(symbol);
   const name = symbol.getName();
 
   const visited = new Set<number>();

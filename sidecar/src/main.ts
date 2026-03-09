@@ -1,6 +1,7 @@
 import * as readline from "node:readline";
 import type { Request } from "./protocol.js";
 import { handleEcho } from "./handlers/echo.js";
+import { handleResolve } from "./handlers/resolve.js";
 
 function log(...args: unknown[]): void {
   console.error("[ts-explorer]", ...args);
@@ -33,6 +34,9 @@ rl.on("line", (line: string) => {
     switch (msg.method) {
       case "echo":
         result = handleEcho(msg.params);
+        break;
+      case "resolve":
+        result = handleResolve(msg.params);
         break;
       default: {
         const errorResponse = JSON.stringify({
