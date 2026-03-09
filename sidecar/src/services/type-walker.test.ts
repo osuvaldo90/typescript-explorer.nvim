@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { resolveAtPosition } from "./type-walker.js";
+import { resolveAtPosition, walkType } from "./type-walker.js";
+import { getLanguageService } from "./language-service.js";
 import type { TypeNode } from "../types.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -194,6 +195,77 @@ describe("type-walker", () => {
       const nameChild = findChild(result.node, "name");
       assert.ok(nameChild, "should have 'name' child");
       assert.notEqual(nameChild.readonly, true, "name should not be readonly");
+    });
+  });
+
+  describe("cycle detection", () => {
+    it("produces circular marker for recursive types without stack overflow", () => {
+      // Tree = { value: number; left: Tree | null; right: Tree | null }
+      const { filePath, position } = fixturePos("simple.ts", "tree:");
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node");
+      assert.equal(result.node.kind, "object", "top-level should be object");
+      assert.ok(result.node.children, "should have children");
+
+      // Find a circular marker somewhere in the tree
+      const circular = findDescendant(result.node, (n) => n.kind === "circular");
+      assert.ok(circular, "should find a circular marker in the tree");
+      assert.ok(
+        circular.typeString.includes("[circular:"),
+        `circular typeString should contain "[circular:", got "${circular.typeString}"`,
+      );
+    });
+
+    it("expands sibling branches that reference the same type", () => {
+      // Both `left` and `right` are Tree | null -- both should be expanded (not just one)
+      const { filePath, position } = fixturePos("simple.ts", "tree:");
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node");
+
+      const left = findChild(result.node, "left");
+      assert.ok(left, "should have 'left' child");
+      assert.ok(left.children || left.kind === "union", "left should be expanded");
+
+      const right = findChild(result.node, "right");
+      assert.ok(right, "should have 'right' child");
+      assert.ok(right.children || right.kind === "union", "right should be expanded");
+    });
+  });
+
+  describe("timeout handling (SIDE-06)", () => {
+    it("returns timeout node when time budget is exceeded", () => {
+      // Use walkType directly with a startTime already in the past to guarantee timeout
+      const { filePath } = fixturePos("simple.ts", "tree:");
+      const service = getLanguageService(filePath);
+      const program = service.getProgram()!;
+      const checker = program.getTypeChecker();
+      const sourceFile = program.getSourceFile(filePath)!;
+
+      // Find the tree symbol to get its type
+      const symbols = checker.getSymbolsInScope(sourceFile, 0xffffffff);
+      const treeSym = symbols.find((s) => s.getName() === "tree");
+      assert.ok(treeSym, "should find tree symbol");
+      const treeType = checker.getTypeOfSymbol(treeSym);
+
+      // Call walkType with startTime far in the past (already expired)
+      const expiredStartTime = Date.now() - 10000; // 10 seconds ago
+      const result = walkType(checker, treeType, "tree", new Set(), expiredStartTime, 5000);
+
+      assert.equal(result.kind, "timeout", "should be timeout when budget expired");
+      assert.equal(result.typeString, "[resolution timeout]");
+      assert.equal(result.name, "tree");
+    });
+
+    it("resolveAtPosition returns partial results (node is non-null) even with tight timeout", () => {
+      // With a very short timeout, we still get a node back (partial result, not error)
+      const { filePath, position } = fixturePos("simple.ts", "tree:");
+      const result = resolveAtPosition(filePath, position, 1);
+      assert.ok(result.node, "should return partial results, not null");
+      // The node should be either a valid type or contain timeout markers somewhere
+      assert.ok(
+        ["object", "timeout"].includes(result.node.kind),
+        `root should be object or timeout, got ${result.node.kind}`,
+      );
     });
   });
 
