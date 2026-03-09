@@ -12,7 +12,7 @@ This roadmap delivers a TypeScript type explorer for Neovim in three phases, bui
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Sidecar Communication** - Reliable bidirectional NDJSON communication between Neovim and a Node.js sidecar process
+- [x] **Phase 1: Sidecar Communication** - Reliable bidirectional NDJSON communication between Neovim and a Node.js sidecar process (completed 2026-03-09)
 - [ ] **Phase 2: Type Resolution Engine** - Full untruncated TypeScript type resolution returning structured type trees
 - [ ] **Phase 3: Panel UI and Integration** - Interactive side panel with tree rendering wired to live type resolution on cursor move
 
@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Neovim can send a JSON request to the sidecar and receive a JSON response back (echo round-trip)
   3. Closing Neovim causes the sidecar to self-terminate with no orphaned Node.js processes
   4. Sidecar logging goes to stderr only -- no stdout corruption of the message channel
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 01-01-PLAN.md — Node.js sidecar project with NDJSON protocol, echo handler, and self-termination (TDD)
@@ -72,6 +72,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Sidecar Communication | 0/2 | Planning complete | - |
+| 1. Sidecar Communication | 2/2 | Complete   | 2026-03-09 |
 | 2. Type Resolution Engine | 0/TBD | Not started | - |
 | 3. Panel UI and Integration | 0/TBD | Not started | - |

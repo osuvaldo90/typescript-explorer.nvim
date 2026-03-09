@@ -19,7 +19,7 @@
 
 ### Sidecar
 
-- [ ] **SIDE-01**: Node.js sidecar starts automatically when Neovim loads the plugin
+- [x] **SIDE-01**: Node.js sidecar starts automatically when Neovim loads the plugin
 - [x] **SIDE-02**: Sidecar communicates with Neovim over stdio using newline-delimited JSON
 - [ ] **SIDE-03**: Sidecar discovers and uses the project's tsconfig.json
 - [ ] **SIDE-04**: Sidecar uses TypeScript LanguageService for incremental type resolution
@@ -69,7 +69,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SIDE-01 | Phase 1 | Pending |
+| SIDE-01 | Phase 1 | Complete |
 | SIDE-02 | Phase 1 | Complete |
 | SIDE-05 | Phase 1 | Complete |
 | SIDE-03 | Phase 2 | Pending |
