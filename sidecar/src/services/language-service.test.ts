@@ -1,10 +1,12 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { getLanguageService } from "./language-service.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.resolve(
-  import.meta.dirname,
+  __dirname,
   "../../test-fixtures",
 );
 const FIXTURE_FILE = path.join(FIXTURES_DIR, "simple.ts");
