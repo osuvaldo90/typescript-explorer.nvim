@@ -43,12 +43,12 @@ Plans:
   3. Optional properties include a `?` marker and readonly properties include a `readonly` marker in the returned data
   4. The sidecar discovers and uses the project's tsconfig.json for type resolution
   5. Recursive or pathological types do not hang the sidecar -- resolution times out gracefully
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
-- [ ] 02-03: TBD
+- [ ] 02-01-PLAN.md — TypeNode types, LanguageService manager with tsconfig discovery
+- [ ] 02-02-PLAN.md — Recursive type walker with cycle detection and timeout (TDD)
+- [ ] 02-03-PLAN.md — Resolve handler wiring and end-to-end integration
 
 ### Phase 3: Panel UI and Integration
 **Goal**: User can open a side panel that shows a live, interactive type tree for the symbol under the cursor
@@ -73,5 +73,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Sidecar Communication | 2/2 | Complete   | 2026-03-09 |
-| 2. Type Resolution Engine | 0/TBD | Not started | - |
+| 2. Type Resolution Engine | 0/3 | Not started | - |
 | 3. Panel UI and Integration | 0/TBD | Not started | - |
