@@ -8,14 +8,14 @@
 ### Type Resolution
 
 - [ ] **TRES-01**: User can see the full, untruncated type of any TypeScript symbol
-- [ ] **TRES-02**: Object types display expandable property lists with name and type
-- [ ] **TRES-03**: Union types display each branch as a collapsible child node
-- [ ] **TRES-04**: Intersection types display the merged result (e.g., `{ a: string } & { b: number }` shows as a single object with both properties)
-- [ ] **TRES-05**: Function types display parameters (name + type) and return type as children
-- [ ] **TRES-06**: Array types unwrap to show element type; tuples show positional elements
-- [ ] **TRES-07**: Generic types show resolved type arguments at the usage site
-- [ ] **TRES-08**: Optional properties display `?` marker
-- [ ] **TRES-09**: Readonly properties display `readonly` marker
+- [x] **TRES-02**: Object types display expandable property lists with name and type
+- [x] **TRES-03**: Union types display each branch as a collapsible child node
+- [x] **TRES-04**: Intersection types display the merged result (e.g., `{ a: string } & { b: number }` shows as a single object with both properties)
+- [x] **TRES-05**: Function types display parameters (name + type) and return type as children
+- [x] **TRES-06**: Array types unwrap to show element type; tuples show positional elements
+- [x] **TRES-07**: Generic types show resolved type arguments at the usage site
+- [x] **TRES-08**: Optional properties display `?` marker
+- [x] **TRES-09**: Readonly properties display `readonly` marker
 
 ### Sidecar
 
@@ -24,7 +24,7 @@
 - [x] **SIDE-03**: Sidecar discovers and uses the project's tsconfig.json
 - [x] **SIDE-04**: Sidecar uses TypeScript LanguageService for incremental type resolution
 - [x] **SIDE-05**: Sidecar self-terminates when stdin closes (no zombie processes)
-- [ ] **SIDE-06**: Type resolution has a timeout to prevent hangs on recursive types
+- [x] **SIDE-06**: Type resolution has a timeout to prevent hangs on recursive types
 
 ### Panel
 
@@ -74,16 +74,16 @@
 | SIDE-05 | Phase 1 | Complete |
 | SIDE-03 | Phase 2 | Complete |
 | SIDE-04 | Phase 2 | Complete |
-| SIDE-06 | Phase 2 | Pending |
+| SIDE-06 | Phase 2 | Complete |
 | TRES-01 | Phase 2 | Pending |
-| TRES-02 | Phase 2 | Pending |
-| TRES-03 | Phase 2 | Pending |
-| TRES-04 | Phase 2 | Pending |
-| TRES-05 | Phase 2 | Pending |
-| TRES-06 | Phase 2 | Pending |
-| TRES-07 | Phase 2 | Pending |
-| TRES-08 | Phase 2 | Pending |
-| TRES-09 | Phase 2 | Pending |
+| TRES-02 | Phase 2 | Complete |
+| TRES-03 | Phase 2 | Complete |
+| TRES-04 | Phase 2 | Complete |
+| TRES-05 | Phase 2 | Complete |
+| TRES-06 | Phase 2 | Complete |
+| TRES-07 | Phase 2 | Complete |
+| TRES-08 | Phase 2 | Complete |
+| TRES-09 | Phase 2 | Complete |
 | PANE-01 | Phase 3 | Pending |
 | PANE-02 | Phase 3 | Pending |
 | PANE-03 | Phase 3 | Pending |
