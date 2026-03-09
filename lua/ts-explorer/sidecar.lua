@@ -1,6 +1,7 @@
 local M = {}
 
 local job_id = nil
+local stopping = false
 local restart_count = 0
 
 function M.get_job_id()
@@ -32,9 +33,13 @@ function M.start()
     on_stderr = function(_, data, _)
       require("ts-explorer.log").on_stderr(data)
     end,
-    on_exit = function(_, exit_code, _)
+    on_exit = function(id, exit_code, _)
+      -- Ignore exit from a job we intentionally stopped
+      if id ~= job_id then
+        return
+      end
       job_id = nil
-      if exit_code ~= 0 then
+      if not stopping and exit_code ~= 0 then
         M._handle_crash()
       end
     end,
@@ -43,8 +48,10 @@ end
 
 function M.stop()
   if job_id then
+    stopping = true
     vim.fn.jobstop(job_id)
     job_id = nil
+    stopping = false
   end
   require("ts-explorer.rpc").reset()
 end
@@ -61,7 +68,9 @@ function M._handle_crash()
   local config = require("ts-explorer.config").get()
   local max = (config.sidecar and config.sidecar.max_restarts) or 3
   if restart_count <= max then
-    M.start()
+    vim.schedule(function()
+      M.start()
+    end)
   else
     vim.notify(
       "TypeScript Explorer: sidecar crashed repeatedly. Use :TsExplorerRestart to retry.",

@@ -13,11 +13,6 @@ process.stdin.on("end", () => {
   process.exit(0);
 });
 
-// Clean shutdown on SIGTERM (sent by jobstop)
-process.on("SIGTERM", () => {
-  process.exit(0);
-});
-
 rl.on("line", (line: string) => {
   let msg: Request;
 
