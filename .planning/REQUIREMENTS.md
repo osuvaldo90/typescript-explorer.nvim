@@ -7,7 +7,7 @@
 
 ### Type Resolution
 
-- [ ] **TRES-01**: User can see the full, untruncated type of any TypeScript symbol
+- [x] **TRES-01**: User can see the full, untruncated type of any TypeScript symbol
 - [x] **TRES-02**: Object types display expandable property lists with name and type
 - [x] **TRES-03**: Union types display each branch as a collapsible child node
 - [x] **TRES-04**: Intersection types display the merged result (e.g., `{ a: string } & { b: number }` shows as a single object with both properties)
@@ -75,7 +75,7 @@
 | SIDE-03 | Phase 2 | Complete |
 | SIDE-04 | Phase 2 | Complete |
 | SIDE-06 | Phase 2 | Complete |
-| TRES-01 | Phase 2 | Pending |
+| TRES-01 | Phase 2 | Complete |
 | TRES-02 | Phase 2 | Complete |
 | TRES-03 | Phase 2 | Complete |
 | TRES-04 | Phase 2 | Complete |
