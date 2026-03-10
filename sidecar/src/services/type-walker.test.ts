@@ -330,6 +330,71 @@ describe("type-walker", () => {
     });
   });
 
+  describe("overloaded functions (GAP-02)", () => {
+    it("shows all overload signatures as children", () => {
+      const { filePath, position } = fixturePos("overloads.ts", "function parse");
+      const result = resolveAtPosition(filePath, position + "function ".length);
+      assert.ok(result.node, "should resolve a node");
+      assert.equal(result.node.kind, "function");
+      assert.ok(result.node.children, "should have children");
+
+      // Should have overload children (not just one signature's params)
+      const overloads = result.node.children.filter((c) => c.name.startsWith("overload"));
+      assert.ok(overloads.length >= 2, `should have at least 2 overload children, got ${overloads.length}`);
+    });
+
+    it("each overload signature has its own params and return type", () => {
+      const { filePath, position } = fixturePos("overloads.ts", "function parse");
+      const result = resolveAtPosition(filePath, position + "function ".length);
+      assert.ok(result.node, "should resolve a node");
+      assert.ok(result.node.children, "should have children");
+
+      const overloads = result.node.children.filter((c) => c.name.startsWith("overload"));
+      for (const overload of overloads) {
+        assert.equal(overload.kind, "function", "each overload should be kind function");
+        assert.ok(overload.children, `overload "${overload.name}" should have children`);
+        const ret = findChild(overload, "returns");
+        assert.ok(ret, `overload "${overload.name}" should have a returns child`);
+      }
+    });
+  });
+
+  describe("private class members (GAP-03)", () => {
+    it("resolves private member with actual type, not any", () => {
+      // Resolve instance to get the class type with members as direct children
+      const { filePath, position } = fixturePos("classes.ts", "container =");
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node");
+      assert.ok(result.node.children, "should have children");
+
+      const itemsChild = findChild(result.node, "items");
+      assert.ok(itemsChild, "should have 'items' child");
+      assert.ok(
+        itemsChild.typeString.includes("string[]") || itemsChild.typeString.includes("string"),
+        `items typeString should contain 'string[]', got "${itemsChild.typeString}"`,
+      );
+      // Critically: should NOT be "any"
+      assert.ok(
+        !itemsChild.typeString.includes("any"),
+        `private member items should not be 'any', got "${itemsChild.typeString}"`,
+      );
+    });
+
+    it("public class members still resolve correctly", () => {
+      const { filePath, position } = fixturePos("classes.ts", "container =");
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node");
+      assert.ok(result.node.children, "should have children");
+
+      const nameChild = findChild(result.node, "name");
+      assert.ok(nameChild, "should have 'name' child");
+      assert.ok(
+        nameChild.typeString.includes("string"),
+        `name typeString should contain 'string', got "${nameChild.typeString}"`,
+      );
+    });
+  });
+
   describe("primitive and literal types", () => {
     it("resolves primitive type", () => {
       const { filePath, position } = fixturePos("simple.ts", "num:");

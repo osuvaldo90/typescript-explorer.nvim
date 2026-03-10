@@ -26,3 +26,4 @@ interface TestEvent {
 }
 
 export const bus = new EventBus<TestEvent>();
+export const container = new Container();

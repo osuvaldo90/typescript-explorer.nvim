@@ -159,29 +159,68 @@ export function walkType(
     result = { kind: "array", name, typeString, children };
   } else if (type.getCallSignatures().length > 0) {
     // Function type
-    const sig = type.getCallSignatures()[0];
-    const children: TypeNode[] = [];
+    const signatures = type.getCallSignatures();
 
-    for (const param of sig.getParameters()) {
-      const paramType = checker.getTypeOfSymbol(param);
-      const paramNode = walkType(
-        checker,
-        paramType,
-        param.getName(),
-        new Set(visited),
-        startTime,
-        timeoutMs,
-        nextDepth,
+    if (signatures.length > 1) {
+      // Overloaded function: create child nodes for each overload signature
+      const children: TypeNode[] = signatures.map((sig, i) => {
+        const sigChildren: TypeNode[] = [];
+
+        for (const param of sig.getParameters()) {
+          const paramType = checker.getTypeOfSymbol(param);
+          const paramNode = walkType(
+            checker,
+            paramType,
+            param.getName(),
+            new Set(visited),
+            startTime,
+            timeoutMs,
+            nextDepth + 1,
+          );
+          sigChildren.push(paramNode);
+        }
+
+        const returnType = sig.getReturnType();
+        sigChildren.push(
+          walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs, nextDepth + 1),
+        );
+
+        const sigTypeString = checker.signatureToString(sig);
+        return {
+          kind: "function" as const,
+          name: `overload ${i + 1}`,
+          typeString: sigTypeString,
+          children: sigChildren,
+        };
+      });
+
+      result = { kind: "function", name, typeString, children };
+    } else {
+      // Single signature: keep current behavior
+      const sig = signatures[0];
+      const children: TypeNode[] = [];
+
+      for (const param of sig.getParameters()) {
+        const paramType = checker.getTypeOfSymbol(param);
+        const paramNode = walkType(
+          checker,
+          paramType,
+          param.getName(),
+          new Set(visited),
+          startTime,
+          timeoutMs,
+          nextDepth,
+        );
+        children.push(paramNode);
+      }
+
+      const returnType = sig.getReturnType();
+      children.push(
+        walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs, nextDepth),
       );
-      children.push(paramNode);
+
+      result = { kind: "function", name, typeString, children };
     }
-
-    const returnType = sig.getReturnType();
-    children.push(
-      walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs, nextDepth),
-    );
-
-    result = { kind: "function", name, typeString, children };
   } else if (
     type.flags & ts.TypeFlags.Object &&
     type.getProperties().length > 0
