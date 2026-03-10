@@ -19,14 +19,14 @@ M.defaults = {
   },
 }
 
-M.values = {}
+M.values = nil
 
 function M.setup(opts)
   M.values = vim.tbl_deep_extend("force", M.defaults, opts or {})
 end
 
 function M.get()
-  return M.values
+  return M.values or M.defaults
 end
 
 return M
