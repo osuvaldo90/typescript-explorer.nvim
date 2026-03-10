@@ -5,7 +5,7 @@ milestone_name: milestone
 status: completed
 stopped_at: Completed 03-04-PLAN.md
 last_updated: "2026-03-10T02:48:55.555Z"
-last_activity: 2026-03-10 - Completed quick task 5: the typescript explorer panel should expand 5 levels by default
+last_activity: 2026-03-10 - Completed quick task 6: fix type explorer showing module-level types after file edit
 progress:
   total_phases: 3
   completed_phases: 3
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 Phase: 3 of 3 (Panel UI and Integration)
 Plan: 4 of 4 in current phase -- COMPLETE
 Status: All plans complete
-Last activity: 2026-03-10 - Completed quick task 5: the typescript explorer panel should expand 5 levels by default
+Last activity: 2026-03-10 - Completed quick task 6: fix type explorer showing module-level types after file edit
 
 Progress: [██████████] 100% (10/10 plans)
 
@@ -84,6 +84,8 @@ Recent decisions affecting current work:
 - [03-03]: GAP-03 private members already resolve correctly -- no code fix needed, only test coverage
 - [03-04]: maxNodes=500 default caps total TypeNode count per resolve to prevent response size explosion (222K nodes / 29.5MB down to ~1K / 138KB)
 - [03-04]: WalkContext uses shared mutable counter across all recursive walkType/walkSymbol calls for global node budget
+- [quick-6]: fileVersions Map keyed by absolute path for per-file version tracking
+- [quick-6]: Fire-and-forget RPC for fileChanged -- saves should not block on response
 
 ### Pending Todos
 
@@ -100,9 +102,10 @@ None -- all gaps closed.
 | 1 | Fix array interface types showing {} instead of resolved type in explorer | 2026-03-10 | ab430d8 | | [1-fix-array-interface-types-showing-instea](./quick/1-fix-array-interface-types-showing-instea/) |
 | 3 | Fix bus hover not updating type explorer (byte vs character offset) | 2026-03-10 | 63dc780 | Needs Review | [3-in-test-ts-line-239-hovering-over-bus-do](./quick/3-in-test-ts-line-239-hovering-over-bus-do/) |
 | 5 | Default 5-level expansion in type explorer panel | 2026-03-10 | 8bab781 | Verified | [5-the-typescript-explorer-panel-should-exp](./quick/5-the-typescript-explorer-panel-should-exp/) |
+| 6 | Fix type explorer showing module-level types after file edit | 2026-03-10 | 9161512 | | [6-fix-type-explorer-showing-module-level-t](./quick/6-fix-type-explorer-showing-module-level-t/) |
 
 ## Session Continuity
 
-Last session: 2026-03-10T04:02:31Z
-Stopped at: Completed quick task 5
+Last session: 2026-03-10T04:23:30Z
+Stopped at: Completed quick task 6
 Resume file: None
