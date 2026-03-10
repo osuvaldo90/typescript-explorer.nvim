@@ -7,6 +7,10 @@ vim.api.nvim_create_user_command("TsExplorerRestart", function()
   require("ts-explorer.sidecar").restart()
 end, { desc = "Restart TypeScript Explorer sidecar" })
 
+vim.api.nvim_create_user_command("TsExplorer", function()
+  require("ts-explorer.panel").toggle()
+end, { desc = "Toggle TypeScript Explorer panel" })
+
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     require("ts-explorer.sidecar").start()
