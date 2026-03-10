@@ -5,7 +5,7 @@ milestone_name: milestone
 status: completed
 stopped_at: Completed 03-04-PLAN.md
 last_updated: "2026-03-10T02:48:55.555Z"
-last_activity: 2026-03-10 - Completed quick task 6: Fix type explorer showing module-level type after file edit due to stale offset
+last_activity: 2026-03-10 - Completed quick task 7: Add <leader>tr keyboard shortcut to restart sidecar
 progress:
   total_phases: 3
   completed_phases: 3
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-09)
 Phase: 3 of 3 (Panel UI and Integration)
 Plan: 4 of 4 in current phase -- COMPLETE
 Status: All plans complete
-Last activity: 2026-03-10 - Completed quick task 6: Fix type explorer showing module-level type after file edit due to stale offset
+Last activity: 2026-03-10 - Completed quick task 7: Add <leader>tr keyboard shortcut to restart sidecar
 
 Progress: [██████████] 100% (10/10 plans)
 
@@ -103,9 +103,10 @@ None -- all gaps closed.
 | 3 | Fix bus hover not updating type explorer (byte vs character offset) | 2026-03-10 | 63dc780 | Needs Review | [3-in-test-ts-line-239-hovering-over-bus-do](./quick/3-in-test-ts-line-239-hovering-over-bus-do/) |
 | 5 | Default 5-level expansion in type explorer panel | 2026-03-10 | 8bab781 | Verified | [5-the-typescript-explorer-panel-should-exp](./quick/5-the-typescript-explorer-panel-should-exp/) |
 | 6 | Fix type explorer showing module-level types after file edit | 2026-03-10 | 70423e5 | Verified | [6-fix-type-explorer-showing-module-level-t](./quick/6-fix-type-explorer-showing-module-level-t/) |
+| 7 | Add `<leader>tr` keyboard shortcut to restart sidecar | 2026-03-10 | f98e3b1 | | [7-add-a-keyboard-shortcut-leader-tr-for-ts](./quick/7-add-a-keyboard-shortcut-leader-tr-for-ts/) |
 
 ## Session Continuity
 
-Last session: 2026-03-10T04:23:30Z
-Stopped at: Completed quick task 6
+Last session: 2026-03-10T13:52:29Z
+Stopped at: Completed quick task 7
 Resume file: None
