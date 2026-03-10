@@ -137,16 +137,14 @@ describe("type-walker", () => {
   });
 
   describe("array types (TRES-06)", () => {
-    it("resolves array type with element child", () => {
+    it("resolves primitive array type with no children (unwrapped)", () => {
       const { filePath, position } = fixturePos("simple.ts", "arr:");
       const result = resolveAtPosition(filePath, position);
       assert.ok(result.node, "should resolve a node");
       assert.equal(result.node.kind, "array");
-      assert.ok(result.node.children, "array should have children");
-
-      const element = findChild(result.node, "element");
-      assert.ok(element, "should have 'element' child");
-      assert.equal(element.kind, "primitive");
+      assert.ok(result.node.typeString.includes("string[]"), "typeString should contain string[]");
+      // Primitive arrays have no children since element type has no structure to show
+      assert.equal(result.node.children!.length, 0, "primitive array should have no children");
     });
 
     it("resolves tuple type with positional children", () => {
@@ -408,15 +406,12 @@ describe("type-walker", () => {
         diagChild.typeString.includes("Diagnostic"),
         `diagnostics typeString should contain 'Diagnostic', got "${diagChild.typeString}"`,
       );
-      assert.ok(diagChild.children, "diagnostics should have children (element type)");
-      assert.ok(diagChild.children.length > 0, "diagnostics should have at least one child");
-
-      // The element child should be an object (Diagnostic) with its own children
-      const element = findChild(diagChild, "element");
-      assert.ok(element, "should have 'element' child");
-      assert.equal(element.kind, "object", "element should be object kind (Diagnostic)");
-      assert.ok(element.children, "Diagnostic element should have children (message, severity, range)");
-      assert.ok(element.children.length >= 3, `Diagnostic should have at least 3 children, got ${element.children.length}`);
+      // Array unwraps element type: Diagnostic's properties appear directly as children
+      assert.ok(diagChild.children, "diagnostics should have children (unwrapped element properties)");
+      assert.ok(diagChild.children.length >= 3, `diagnostics should have at least 3 children (message, severity, range), got ${diagChild.children.length}`);
+      assert.ok(findChild(diagChild, "message"), "should have 'message' property");
+      assert.ok(findChild(diagChild, "severity"), "should have 'severity' property");
+      assert.ok(findChild(diagChild, "range"), "should have 'range' property");
     });
   });
 

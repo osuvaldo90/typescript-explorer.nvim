@@ -8,5 +8,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   minify: false,
-  noExternal: [/.*/],
+  noExternal: [/^(?!typescript$).*/],
 });

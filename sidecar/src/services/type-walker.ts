@@ -165,15 +165,15 @@ export function walkType(
     );
     result = { kind: "tuple", name, typeString, children };
   } else if (checker.isArrayType(type)) {
-    // Array type
+    // Array type — unwrap element type so its properties appear directly as children
     const typeArgs = checker.getTypeArguments(type as ts.TypeReference);
     const elementType = typeArgs[0];
-    const children: TypeNode[] = [];
-    if (elementType) {
-      children.push(
-        walkType(checker, elementType, "element", new Set(visited), startTime, timeoutMs, nextDepth, ctx),
-      );
-    }
+    const elementNode = elementType
+      ? walkType(checker, elementType, "element", new Set(visited), startTime, timeoutMs, nextDepth, ctx)
+      : undefined;
+    // Unwrap: use element's children directly instead of nesting under "element"
+    // For primitive elements (e.g. string[]), the typeString already conveys the info
+    const children = elementNode?.children ?? [];
     result = { kind: "array", name, typeString, children };
   } else if (type.getCallSignatures().length > 0) {
     // Function type
