@@ -1,77 +1,51 @@
 ---
 phase: 02-type-resolution-engine
-verified: 2026-03-09T23:55:00Z
+verified: 2026-03-09T20:40:00Z
 status: passed
-score: 17/17 must-haves verified
-gaps: []
+score: 5/5 success criteria verified
+re_verification:
+  previous_status: passed
+  previous_score: 17/17
+  gaps_closed: []
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 2: Type Resolution Engine Verification Report
 
 **Phase Goal:** Given a file path and cursor position, the sidecar returns a complete structured type tree with no truncation
-**Verified:** 2026-03-09T23:55:00Z
+**Verified:** 2026-03-09T20:40:00Z
 **Status:** passed
-**Re-verification:** No -- initial verification
+**Re-verification:** Yes -- independent re-verification of previous passed result
 
 ## Goal Achievement
 
-### Observable Truths (from Success Criteria)
+### Observable Truths (Success Criteria from ROADMAP.md)
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | Sending a file path and position to the sidecar returns the full untruncated type | VERIFIED | Integration tests pass: object, primitive, union, function types all return TypeNode trees over NDJSON |
-| 2 | Returned type tree correctly represents object properties, union branches, intersection results, function signatures, array/tuple elements, and resolved generics | VERIFIED | 17 unit tests covering all type kinds pass; each verifies correct kind, children structure, and naming |
-| 3 | Optional properties include `?` marker and readonly properties include `readonly` marker | VERIFIED | TRES-08 test: email.optional===true; TRES-09 test: id.readonly===true |
-| 4 | Sidecar discovers and uses project's tsconfig.json for type resolution | VERIFIED | language-service.test.ts verifies tsconfig discovery; fallback for no-tsconfig also works |
-| 5 | Recursive or pathological types do not hang the sidecar -- resolution times out gracefully | VERIFIED | Cycle detection returns circular markers; timeout returns partial results with timeout nodes |
+| 1 | Sending a file path and position to the sidecar returns the full untruncated type | VERIFIED | `NoTruncation` flag used in type-walker.ts:98; integration tests spawn sidecar, send NDJSON resolve request, receive full TypeNode response; 4 integration tests pass |
+| 2 | Returned type tree correctly represents object properties, union branches, intersection results, function signatures, array/tuple elements, and resolved generics | VERIFIED | 17 unit tests cover all type kinds: TRES-02 (object), TRES-03 (union), TRES-04 (intersection), TRES-05 (function), TRES-06 (array/tuple), TRES-07 (generics) -- all pass |
+| 3 | Optional properties include `?` marker and readonly properties include `readonly` marker | VERIFIED | TRES-08 test confirms email.optional===true; TRES-09 test confirms id.readonly===true; walkSymbol checks SymbolFlags.Optional and ModifierFlags.Readonly |
+| 4 | Sidecar discovers and uses project's tsconfig.json for type resolution | VERIFIED | language-service.ts uses ts.findConfigFile + ts.readConfigFile + ts.parseJsonConfigFileContent; 6 unit tests pass including fallback for no-tsconfig |
+| 5 | Recursive or pathological types do not hang the sidecar -- resolution times out gracefully | VERIFIED | Cycle detection returns `{kind: "circular"}` markers; timeout returns `{kind: "timeout"}` nodes; DEFAULT_TIMEOUT_MS=5000; both unit tested and passing |
 
-### Plan 01 Truths
-
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 6 | LanguageService initializes from a file path by discovering tsconfig.json | VERIFIED | `ts.findConfigFile` + `ts.readConfigFile` in language-service.ts; 6 tests pass |
-| 7 | LanguageService returns a working TypeChecker that can resolve types | VERIFIED | Test 4 verifies getTypeChecker() returns symbols in scope |
-| 8 | TypeNode interface defines all type kinds with correct shape | VERIFIED | 11 kinds in TypeKind union; TypeNode has kind, name, typeString, optional, readonly, sourcePath, sourceLine, children |
-
-### Plan 02 Truths
-
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 9 | Object types resolve to nodes with property children | VERIFIED | TRES-02 test passes |
-| 10 | Union types resolve to nodes with each branch as a direct child | VERIFIED | TRES-03 tests pass (string|number and literal union) |
-| 11 | Intersection types resolve to merged object with all properties | VERIFIED | TRES-04 test: kind="object" with both a and b properties |
-| 12 | Function types resolve to nodes with parameter and return children | VERIFIED | TRES-05 tests pass (named function + arrow function) |
-| 13 | Array types unwrap to show element type; tuples show positional elements | VERIFIED | TRES-06 tests pass (array with element child, tuple with [0]/[1] children) |
-| 14 | Generic types at usage site show resolved type arguments | VERIFIED | TRES-07 test: Pair<string,number> shows concrete first:string, second:number |
-| 15 | Optional/readonly flags set correctly | VERIFIED | TRES-08 + TRES-09 tests pass |
-| 16 | Recursive types produce circular marker after one expansion | VERIFIED | Cycle detection test: Tree type produces circular markers without stack overflow |
-| 17 | Pathological types hit timeout and return partial results | VERIFIED | Timeout test: expired startTime produces timeout node; resolveAtPosition with 1ms returns non-null partial result |
-
-### Plan 03 Truths
-
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| SC1 | Sending a resolve request over NDJSON returns a structured TypeNode tree | VERIFIED | 4 integration tests: spawn sidecar, send NDJSON, parse TypeNode response |
-| SC2 | Resolve handler validates params and returns clear errors | VERIFIED | 2 validation tests: missing filePath and missing position both return HANDLER_ERROR |
-| SC3 | Sidecar builds successfully with typescript bundled | VERIFIED | `npm run build` produces dist/main.js (9.42 MB) |
-| SC4 | End-to-end: spawn sidecar, send resolve, receive TypeNode | VERIFIED | Integration tests verify full round-trip for 4 type kinds |
-
-**Score:** 17/17 truths verified (plus 4 success criteria sub-truths)
+**Score:** 5/5 success criteria verified
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `sidecar/src/types.ts` | TypeNode, TypeKind, ResolveParams, ResolveResult | VERIFIED | All 4 types exported; TypeKind has 11 variants; TypeNode has all required fields |
-| `sidecar/src/services/language-service.ts` | LanguageService factory with tsconfig discovery | VERIFIED | getLanguageService exported; uses ts.findConfigFile, ts.createLanguageService; caches per project root |
-| `sidecar/src/services/language-service.test.ts` | 6 tests for LanguageService | VERIFIED | 6 tests pass: creation, program, source file, TypeChecker, caching, no-tsconfig fallback |
-| `sidecar/src/services/type-walker.ts` | Recursive type walker | VERIFIED | walkType + resolveAtPosition exported; handles all 9 type kinds + cycle + timeout |
-| `sidecar/src/services/type-walker.test.ts` | 17 tests for all type kinds | VERIFIED | 17 tests pass covering TRES-02 through TRES-09, SIDE-06, cycle detection |
-| `sidecar/src/handlers/resolve.ts` | Resolve handler entry point | VERIFIED | handleResolve exported; validates params; calls resolveAtPosition; converts to absolute path |
-| `sidecar/src/handlers/resolve.test.ts` | Integration tests | VERIFIED | 6 tests pass: 4 integration (object, primitive, union, function) + 2 validation |
-| `sidecar/src/main.ts` | Updated dispatch with resolve case | VERIFIED | `case "resolve": result = handleResolve(msg.params)` present at line 38-39 |
-| `sidecar/test-fixtures/simple.ts` | Test fixture with varied types | VERIFIED | Exists with primitives, interfaces, unions, generics, arrays, tuples, recursive types |
-| `sidecar/test-fixtures/tsconfig.json` | Compiler config | VERIFIED | Exists with ES2022 target, strict mode |
+| `sidecar/src/types.ts` | TypeNode, TypeKind, ResolveParams, ResolveResult | VERIFIED | 33 lines; 11 TypeKind variants; TypeNode has kind, name, typeString, optional, readonly, sourcePath, sourceLine, children |
+| `sidecar/src/services/language-service.ts` | LanguageService factory with tsconfig discovery | VERIFIED | 79 lines; uses ts.findConfigFile, ts.createLanguageService; caches per project root |
+| `sidecar/src/services/type-walker.ts` | Recursive type walker with cycle/timeout | VERIFIED | 224 lines; walkType handles 9 type kinds + circular + timeout; walkSymbol sets optional/readonly flags |
+| `sidecar/src/handlers/resolve.ts` | Resolve handler entry point | VERIFIED | 31 lines; validates params, calls resolveAtPosition, converts to absolute path |
+| `sidecar/src/main.ts` | Updated dispatch with resolve case | VERIFIED | Lines 38-39: `case "resolve": result = handleResolve(msg.params)` |
+| `sidecar/src/services/language-service.test.ts` | Unit tests for LanguageService | VERIFIED | 6 tests pass |
+| `sidecar/src/services/type-walker.test.ts` | Unit tests for all type kinds | VERIFIED | 17 tests pass covering TRES-02 through TRES-09, cycle detection, timeout |
+| `sidecar/src/handlers/resolve.test.ts` | Integration tests | VERIFIED | 6 tests pass: 4 end-to-end + 2 validation |
+| `sidecar/test-fixtures/simple.ts` | Test fixture with varied types | VERIFIED | Contains interface, primitives, recursive Tree, union Status, function, array, tuple |
+| `sidecar/test-fixtures/tsconfig.json` | Compiler config | VERIFIED | Exists |
 | `sidecar/test-fixtures/unions.ts` | Union/intersection fixtures | VERIFIED | Exists |
 | `sidecar/test-fixtures/functions.ts` | Function fixtures | VERIFIED | Exists |
 | `sidecar/test-fixtures/generics.ts` | Generic type fixtures | VERIFIED | Exists |
@@ -80,32 +54,32 @@ gaps: []
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| language-service.ts | typescript | ts.createLanguageService, ts.findConfigFile | WIRED | Both API calls present and used |
-| type-walker.ts | types.ts | import TypeNode, TypeKind | WIRED | `import type { TypeNode, ResolveResult } from "../types.js"` at line 3 |
-| type-walker.ts | language-service.ts | getLanguageService | WIRED | `import { getLanguageService } from "./language-service.js"` at line 2; called at line 15 |
-| type-walker.ts | typescript | ts.Type, TypeChecker, SymbolFlags, ModifierFlags | WIRED | All used in walkType and walkSymbol |
-| resolve.ts | type-walker.ts | resolveAtPosition | WIRED | Imported line 2; called line 29 |
-| resolve.ts | types.ts | ResolveParams, ResolveResult | WIRED | Imported line 3; used in function signature |
-| main.ts | resolve.ts | handleResolve dispatch | WIRED | Imported line 4; dispatched in switch case line 38-39 |
+| main.ts | resolve.ts | import handleResolve, dispatch in switch | WIRED | Import line 4, dispatch lines 38-39 |
+| resolve.ts | type-walker.ts | import resolveAtPosition | WIRED | Import line 2, called line 29 |
+| resolve.ts | types.ts | import ResolveParams, ResolveResult | WIRED | Import line 3, used in function signature |
+| type-walker.ts | language-service.ts | import getLanguageService | WIRED | Import line 2, called line 15 |
+| type-walker.ts | types.ts | import TypeNode, ResolveResult | WIRED | Import line 3, used throughout walkType/walkSymbol |
+| language-service.ts | typescript | ts.findConfigFile, ts.createLanguageService | WIRED | Both called and results used |
+| type-walker.ts | typescript | TypeFormatFlags.NoTruncation | WIRED | Line 98 ensures no truncation in typeToString |
 
 ### Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|------------|-------------|--------|----------|
-| SIDE-03 | 02-01, 02-03 | Sidecar discovers and uses project's tsconfig.json | SATISFIED | ts.findConfigFile in language-service.ts; tested in language-service.test.ts |
+| SIDE-03 | 02-01, 02-03 | Sidecar discovers and uses project's tsconfig.json | SATISFIED | ts.findConfigFile in language-service.ts; 6 tests pass |
 | SIDE-04 | 02-01, 02-03 | Sidecar uses TypeScript LanguageService for incremental resolution | SATISFIED | ts.createLanguageService with caching in language-service.ts |
-| SIDE-06 | 02-02, 02-03 | Type resolution has timeout to prevent hangs | SATISFIED | DEFAULT_TIMEOUT_MS=5000 in type-walker.ts; timeout test passes |
-| TRES-01 | 02-03 | User can see full untruncated type | SATISFIED | NoTruncation flag in typeToString; integration tests verify full types returned |
+| SIDE-06 | 02-02, 02-03 | Type resolution has timeout to prevent hangs | SATISFIED | DEFAULT_TIMEOUT_MS=5000; timeout test passes |
+| TRES-01 | 02-03 | User can see full untruncated type | SATISFIED | NoTruncation flag; integration tests verify full types |
 | TRES-02 | 02-02 | Object types display expandable property lists | SATISFIED | Object type test: kind="object" with named property children |
 | TRES-03 | 02-02 | Union types display each branch as child | SATISFIED | Union test: flat branch children verified |
-| TRES-04 | 02-02 | Intersection types display merged result | SATISFIED | Intersection test: merged object with all properties |
+| TRES-04 | 02-02 | Intersection types display merged result | SATISFIED | Intersection test: merged object with both properties |
 | TRES-05 | 02-02 | Function types display params and return | SATISFIED | Function test: parameter children + "returns" child |
 | TRES-06 | 02-02 | Array/tuple element display | SATISFIED | Array: element child; Tuple: positional [0],[1] children |
-| TRES-07 | 02-02 | Generic types show resolved type arguments | SATISFIED | Generic test: Pair<string,number> shows concrete types |
-| TRES-08 | 02-02 | Optional properties display ? marker | SATISFIED | email.optional===true verified |
-| TRES-09 | 02-02 | Readonly properties display readonly marker | SATISFIED | id.readonly===true verified |
+| TRES-07 | 02-02 | Generic types show resolved type arguments | SATISFIED | Pair<string,number> shows concrete first:string, second:number |
+| TRES-08 | 02-02 | Optional properties display ? marker | SATISFIED | email.optional===true verified in test |
+| TRES-09 | 02-02 | Readonly properties display readonly marker | SATISFIED | id.readonly===true verified in test |
 
-No orphaned requirements found -- all 12 requirement IDs from the phase are covered by plans and verified.
+No orphaned requirements found -- all 12 requirement IDs from the phase are covered and satisfied.
 
 ### Anti-Patterns Found
 
@@ -113,17 +87,27 @@ No orphaned requirements found -- all 12 requirement IDs from the phase are cove
 |------|------|---------|----------|--------|
 | (none) | - | - | - | No anti-patterns detected |
 
-No TODOs, FIXMEs, placeholders, empty implementations, or console.log-only handlers found in any phase 2 source files.
+No TODOs, FIXMEs, placeholders, empty implementations, or stub handlers found in any phase 2 source files.
+
+### Test Results
+
+All 30 tests pass via `npm test` (tsx --test):
+- 6 language-service tests (creation, program, source file, TypeChecker, caching, no-tsconfig fallback)
+- 17 type-walker tests (TRES-02 through TRES-09, cycle detection, timeout, primitives/literals)
+- 6 resolve handler tests (4 integration end-to-end, 2 validation)
+- 1 echo handler test (from phase 1)
+
+Build produces dist/main.js (9.42 MB) successfully via `npm run build`.
 
 ### Human Verification Required
 
-None required. All success criteria are verifiable programmatically through tests, and all 29 tests pass (23 unit + 6 integration). The build produces a working binary.
+None required. All success criteria are verifiable programmatically through the passing test suite. The type resolution engine is a sidecar component without UI, so no visual verification is needed.
 
 ### Gaps Summary
 
-No gaps found. All 17 must-have truths verified, all 13 artifacts exist and are substantive and wired, all 7 key links verified, all 12 requirements satisfied, and no anti-patterns detected. The phase goal is fully achieved.
+No gaps found. All 5 success criteria verified against actual codebase. All 13 artifacts exist, are substantive (no stubs), and are properly wired. All 7 key links confirmed. All 12 requirements satisfied. 30/30 tests pass. Build succeeds.
 
 ---
 
-_Verified: 2026-03-09T23:55:00Z_
+_Verified: 2026-03-09T20:40:00Z_
 _Verifier: Claude (gsd-verifier)_
