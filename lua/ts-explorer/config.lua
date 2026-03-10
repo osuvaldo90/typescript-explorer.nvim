@@ -7,6 +7,9 @@ M.defaults = {
   log = {
     level = "error",
   },
+  keybindings = {
+    toggle_panel = "<leader>te", -- set to false to disable
+  },
   panel = {
     width = 40,
     position = "left", -- "left" or "right"
