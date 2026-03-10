@@ -13,7 +13,7 @@ This roadmap delivers a TypeScript type explorer for Neovim in three phases, bui
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Sidecar Communication** - Reliable bidirectional NDJSON communication between Neovim and a Node.js sidecar process (completed 2026-03-09)
-- [ ] **Phase 2: Type Resolution Engine** - Full untruncated TypeScript type resolution returning structured type trees
+- [x] **Phase 2: Type Resolution Engine** - Full untruncated TypeScript type resolution returning structured type trees (completed 2026-03-09)
 - [x] **Phase 3: Panel UI and Integration** - Interactive side panel with tree rendering wired to live type resolution on cursor move (completed 2026-03-10)
 
 ## Phase Details
@@ -59,13 +59,13 @@ Plans:
   2. Tree nodes are expandable and collapsible with keyboard controls, defaulting to 1 level of expansion
   3. Moving the cursor to a different symbol automatically replaces the panel contents with the new type tree (debounced)
   4. User can close the panel with the same command that opens it
-**Plans:** 4 plans (2 complete + 2 gap closure)
+**Plans:** 4/4 plans complete
 
 Plans:
 - [x] 03-01-PLAN.md — Tree rendering engine (TypeNode to lines) and config panel defaults
 - [x] 03-02-PLAN.md — Panel window lifecycle, cursor-follow, keymaps, and command wiring
-- [ ] 03-03-PLAN.md — Fix type-walker stack overflow, overloads, and private members (GAP-01/02/03)
-- [ ] 03-04-PLAN.md — Re-verify and fix cascading gaps, human verification (GAP-04/05/06)
+- [x] 03-03-PLAN.md — Fix type-walker stack overflow, overloads, and private members (GAP-01/02/03)
+- [x] 03-04-PLAN.md — Re-verify and fix cascading gaps, human verification (GAP-04/05/06)
 
 ## Progress
 
@@ -75,5 +75,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Sidecar Communication | 2/2 | Complete   | 2026-03-09 |
-| 2. Type Resolution Engine | 1/3 | In progress | - |
-| 3. Panel UI and Integration | 2/4 | Gap closure | - |
+| 2. Type Resolution Engine | 3/3 | Complete | 2026-03-09 |
+| 3. Panel UI and Integration | 4/4 | Complete | 2026-03-10 |
