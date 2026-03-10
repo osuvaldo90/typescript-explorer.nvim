@@ -13,6 +13,7 @@ M.defaults = {
   panel = {
     width = 40,
     position = "left", -- "left" or "right"
+    default_expand_depth = 5,
     keymaps = {
       toggle = "<CR>",
       expand_recursive = "L",

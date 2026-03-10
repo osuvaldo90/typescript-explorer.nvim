@@ -14,10 +14,27 @@ function M.new(type_node)
   return state
 end
 
---- Set default expansion: root expanded, children visible but collapsed (depth 1).
+--- Set default expansion: expand all nodes with children up to configured depth.
 --- @param tree_state table
 function M.expand_default(tree_state)
-  tree_state.expanded = { ["0"] = true }
+  local config = require("ts-explorer.config")
+  local depth_limit = config.get().panel.default_expand_depth or 5
+  tree_state.expanded = {}
+  local function expand_to_depth(node, path, current_depth)
+    if current_depth >= depth_limit then
+      return
+    end
+    if node.children and #node.children > 0 then
+      tree_state.expanded[path] = true
+      for i, child in ipairs(node.children) do
+        local child_path = path .. "." .. (i - 1)
+        expand_to_depth(child, child_path, current_depth + 1)
+      end
+    end
+  end
+  if tree_state.root then
+    expand_to_depth(tree_state.root, "0", 0)
+  end
 end
 
 --- Internal: get a node by its path string.
