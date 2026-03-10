@@ -3,6 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 
 const serviceCache = new Map<string, ts.LanguageService>();
+const fileVersions = new Map<string, number>();
 
 /**
  * Get or create a LanguageService for the project containing `filePath`.
@@ -56,7 +57,7 @@ export function getLanguageService(filePath: string): ts.LanguageService {
   // Create LanguageServiceHost
   const host: ts.LanguageServiceHost = {
     getScriptFileNames: () => fileNames,
-    getScriptVersion: () => "0",
+    getScriptVersion: (fileName: string) => String(fileVersions.get(fileName) ?? 0),
     getScriptSnapshot: (fileName: string) => {
       if (!fs.existsSync(fileName)) return undefined;
       return ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, "utf-8"));
@@ -75,4 +76,14 @@ export function getLanguageService(filePath: string): ts.LanguageService {
   const service = ts.createLanguageService(host, ts.createDocumentRegistry());
   serviceCache.set(cacheKey, service);
   return service;
+}
+
+/**
+ * Notify that a file has changed on disk.
+ * Increments the per-file version so the LanguageService re-reads it.
+ */
+export function notifyFileChanged(filePath: string): void {
+  const absPath = path.resolve(filePath);
+  const current = fileVersions.get(absPath) ?? 0;
+  fileVersions.set(absPath, current + 1);
 }

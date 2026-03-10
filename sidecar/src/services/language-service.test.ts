@@ -121,28 +121,32 @@ describe("notifyFileChanged", () => {
   });
 
   it("after notifyFileChanged, LanguageService re-reads file from disk", () => {
-    const tmpFile = path.join("/tmp", "reread-test.ts");
-    fs.writeFileSync(tmpFile, "export const original: number = 1;\n");
+    // Use the existing FIXTURE_FILE - save original, modify, then restore
+    const originalContent = fs.readFileSync(FIXTURE_FILE, "utf-8");
     try {
-      const service = getLanguageService(tmpFile);
+      const service = getLanguageService(FIXTURE_FILE);
       let program = service.getProgram()!;
-      let sf = program.getSourceFile(path.resolve(tmpFile));
+      let sf = program.getSourceFile(path.resolve(FIXTURE_FILE));
       assert.ok(sf, "source file should exist initially");
-      assert.ok(sf!.text.includes("original"), "should contain 'original'");
+      assert.ok(sf!.text.includes("num"), "should contain 'num' initially");
 
-      // Modify file on disk
-      fs.writeFileSync(tmpFile, "export const updated: string = 'new';\n");
+      // Modify file on disk - add a new export
+      const modifiedContent = originalContent + "\nexport const rereadMarker: boolean = true;\n";
+      fs.writeFileSync(FIXTURE_FILE, modifiedContent);
 
       // Notify the change
-      notifyFileChanged(tmpFile);
+      notifyFileChanged(FIXTURE_FILE);
 
       // Re-get program - should pick up new content
       program = service.getProgram()!;
-      sf = program.getSourceFile(path.resolve(tmpFile));
+      sf = program.getSourceFile(path.resolve(FIXTURE_FILE));
       assert.ok(sf, "source file should still exist");
-      assert.ok(sf!.text.includes("updated"), "should contain 'updated' after notifyFileChanged");
+      assert.ok(sf!.text.includes("rereadMarker"), "should contain 'rereadMarker' after notifyFileChanged");
     } finally {
-      fs.unlinkSync(tmpFile);
+      // Restore original content
+      fs.writeFileSync(FIXTURE_FILE, originalContent);
+      // Bump version again so subsequent tests see restored content
+      notifyFileChanged(FIXTURE_FILE);
     }
   });
 });
