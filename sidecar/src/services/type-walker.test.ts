@@ -52,6 +52,23 @@ describe("type-walker", () => {
       assert.ok(nameChild, "should have 'name' child");
       assert.equal(nameChild.kind, "primitive");
     });
+
+    it("resolves interface declaration directly", () => {
+      // Position cursor on the "User" identifier in "interface User {"
+      const { filePath, position } = fixturePos("simple.ts", "interface User");
+      // Advance past "interface " to land on "User"
+      const result = resolveAtPosition(filePath, position + "interface ".length);
+      assert.ok(result.node, "should resolve a node");
+      assert.equal(result.node.kind, "object");
+      assert.ok(result.node.children, "interface should have property children");
+      const idChild = findChild(result.node, "id");
+      assert.ok(idChild, "should have 'id' child");
+      const nameChild = findChild(result.node, "name");
+      assert.ok(nameChild, "should have 'name' child");
+      const emailChild = findChild(result.node, "email");
+      assert.ok(emailChild, "should have 'email' child");
+      assert.equal(emailChild.optional, true, "email should be optional");
+    });
   });
 
   describe("union types (TRES-03)", () => {
