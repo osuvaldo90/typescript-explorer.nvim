@@ -77,6 +77,20 @@ local function _setup_autocmds()
       end
     end,
   })
+
+  vim.api.nvim_create_autocmd("BufWritePost", {
+    group = state.augroup,
+    pattern = { "*.ts", "*.tsx" },
+    callback = function(ev)
+      if not sidecar.is_running() then
+        return
+      end
+      local file = vim.api.nvim_buf_get_name(ev.buf)
+      if file and file ~= "" then
+        rpc.request("fileChanged", { filePath = file }, function() end)
+      end
+    end,
+  })
 end
 
 --- Remove all panel autocmds.

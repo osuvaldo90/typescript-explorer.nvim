@@ -2,6 +2,7 @@ import * as readline from "node:readline";
 import type { Request } from "./protocol.js";
 import { handleEcho } from "./handlers/echo.js";
 import { handleResolve } from "./handlers/resolve.js";
+import { notifyFileChanged } from "./services/language-service.js";
 
 function log(...args: unknown[]): void {
   console.error("[ts-explorer]", ...args);
@@ -37,6 +38,10 @@ rl.on("line", (line: string) => {
         break;
       case "resolve":
         result = handleResolve(msg.params);
+        break;
+      case "fileChanged":
+        notifyFileChanged(msg.params.filePath);
+        result = { ok: true };
         break;
       default: {
         const errorResponse = JSON.stringify({
