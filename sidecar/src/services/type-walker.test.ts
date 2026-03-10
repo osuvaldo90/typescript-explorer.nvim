@@ -456,6 +456,35 @@ describe("type-walker", () => {
     });
   });
 
+  describe("max nodes limit (response size control)", () => {
+    it("bus response stays under node limit and responds quickly", () => {
+      const { filePath, position } = fixturePos("complex.ts", "bus = new");
+      const start = Date.now();
+      const result = resolveAtPosition(filePath, position);
+      const elapsed = Date.now() - start;
+      assert.ok(result.node, "should resolve a node");
+
+      // Count total nodes
+      function countNodes(node: TypeNode): number {
+        let count = 1;
+        if (node.children) {
+          for (const c of node.children) count += countNodes(c);
+        }
+        return count;
+      }
+
+      const totalNodes = countNodes(result.node);
+      // Should be well under 2000 nodes (previously was 222K without limit)
+      assert.ok(totalNodes < 2000, `total nodes should be under 2000, got ${totalNodes}`);
+      // Should respond quickly (previously took 900ms+ without limit)
+      assert.ok(elapsed < 1000, `should resolve within 1000ms, took ${elapsed}ms`);
+
+      // Response JSON should be reasonably sized (previously 29.5MB without limit)
+      const jsonSize = JSON.stringify(result).length;
+      assert.ok(jsonSize < 500_000, `JSON response should be under 500KB, got ${jsonSize} bytes`);
+    });
+  });
+
   describe("primitive and literal types", () => {
     it("resolves primitive type", () => {
       const { filePath, position } = fixturePos("simple.ts", "num:");

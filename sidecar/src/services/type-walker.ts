@@ -4,6 +4,16 @@ import type { TypeNode, ResolveResult } from "../types.js";
 
 const DEFAULT_TIMEOUT_MS = 5000;
 const DEFAULT_MAX_DEPTH = 15;
+const DEFAULT_MAX_NODES = 500;
+
+/**
+ * Shared mutable counter for tracking total nodes produced during a single resolve call.
+ * Prevents response size explosion on types with many built-in methods (e.g., Map, Array).
+ */
+interface WalkContext {
+  nodeCount: number;
+  maxNodes: number;
+}
 
 /**
  * Safe wrapper around checker.typeToString that handles stack overflow on recursive types.
@@ -59,8 +69,9 @@ export function resolveAtPosition(
 
   const visited = new Set<number>();
   const startTime = Date.now();
+  const ctx: WalkContext = { nodeCount: 0, maxNodes: DEFAULT_MAX_NODES };
 
-  const typeNode = walkType(checker, type, name, visited, startTime, timeoutMs);
+  const typeNode = walkType(checker, type, name, visited, startTime, timeoutMs, 0, ctx);
   return { node: typeNode };
 }
 
@@ -95,6 +106,7 @@ export function walkType(
   startTime: number,
   timeoutMs: number,
   depth: number = 0,
+  ctx: WalkContext = { nodeCount: 0, maxNodes: DEFAULT_MAX_NODES },
 ): TypeNode {
   // Check timeout
   if (Date.now() - startTime > timeoutMs) {
@@ -104,6 +116,12 @@ export function walkType(
   // Check max depth to prevent stack overflow before TS internals overflow
   if (depth > DEFAULT_MAX_DEPTH) {
     return { kind: "timeout", name, typeString: "[max depth exceeded]" };
+  }
+
+  // Check max nodes to prevent response size explosion
+  ctx.nodeCount++;
+  if (ctx.nodeCount > ctx.maxNodes) {
+    return { kind: "timeout", name, typeString: "[max nodes exceeded]" };
   }
 
   const typeId = (type as any).id as number | undefined;
@@ -128,7 +146,7 @@ export function walkType(
     // Union type -- each branch is a direct child
     const children = type.types.map((branch) => {
       const branchName = safeTypeToString(checker, branch);
-      return walkType(checker, branch, branchName, new Set(visited), startTime, timeoutMs, nextDepth);
+      return walkType(checker, branch, branchName, new Set(visited), startTime, timeoutMs, nextDepth, ctx);
     });
     result = { kind: "union", name, typeString, children };
   } else if (type.isIntersection()) {
@@ -136,14 +154,14 @@ export function walkType(
     const apparent = checker.getApparentType(type);
     const properties = apparent.getProperties();
     const children = properties.map((prop) =>
-      walkSymbol(checker, prop, visited, startTime, timeoutMs, nextDepth),
+      walkSymbol(checker, prop, visited, startTime, timeoutMs, nextDepth, ctx),
     );
     result = { kind: "object", name, typeString, children };
   } else if (checker.isTupleType(type)) {
     // Tuple type
     const typeArgs = checker.getTypeArguments(type as ts.TypeReference);
     const children = typeArgs.map((arg, i) =>
-      walkType(checker, arg, `[${i}]`, new Set(visited), startTime, timeoutMs, nextDepth),
+      walkType(checker, arg, `[${i}]`, new Set(visited), startTime, timeoutMs, nextDepth, ctx),
     );
     result = { kind: "tuple", name, typeString, children };
   } else if (checker.isArrayType(type)) {
@@ -153,7 +171,7 @@ export function walkType(
     const children: TypeNode[] = [];
     if (elementType) {
       children.push(
-        walkType(checker, elementType, "element", new Set(visited), startTime, timeoutMs, nextDepth),
+        walkType(checker, elementType, "element", new Set(visited), startTime, timeoutMs, nextDepth, ctx),
       );
     }
     result = { kind: "array", name, typeString, children };
@@ -176,13 +194,14 @@ export function walkType(
             startTime,
             timeoutMs,
             nextDepth + 1,
+            ctx,
           );
           sigChildren.push(paramNode);
         }
 
         const returnType = sig.getReturnType();
         sigChildren.push(
-          walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs, nextDepth + 1),
+          walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs, nextDepth + 1, ctx),
         );
 
         const sigTypeString = checker.signatureToString(sig);
@@ -210,13 +229,14 @@ export function walkType(
           startTime,
           timeoutMs,
           nextDepth,
+          ctx,
         );
         children.push(paramNode);
       }
 
       const returnType = sig.getReturnType();
       children.push(
-        walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs, nextDepth),
+        walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs, nextDepth, ctx),
       );
 
       result = { kind: "function", name, typeString, children };
@@ -228,7 +248,7 @@ export function walkType(
     // Object type with properties
     const properties = type.getProperties();
     const children = properties.map((prop) =>
-      walkSymbol(checker, prop, visited, startTime, timeoutMs, nextDepth),
+      walkSymbol(checker, prop, visited, startTime, timeoutMs, nextDepth, ctx),
     );
     result = { kind: "object", name, typeString, children };
   } else if (type.flags & (ts.TypeFlags.Enum | ts.TypeFlags.EnumLiteral)) {
@@ -257,10 +277,11 @@ function walkSymbol(
   startTime: number,
   timeoutMs: number,
   depth: number = 0,
+  ctx: WalkContext = { nodeCount: 0, maxNodes: DEFAULT_MAX_NODES },
 ): TypeNode {
   const type = checker.getTypeOfSymbol(symbol);
   const name = symbol.getName();
-  const node = walkType(checker, type, name, new Set(visited), startTime, timeoutMs, depth);
+  const node = walkType(checker, type, name, new Set(visited), startTime, timeoutMs, depth, ctx);
 
   // Check optional
   if (symbol.flags & ts.SymbolFlags.Optional) {
