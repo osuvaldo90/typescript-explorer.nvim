@@ -103,7 +103,7 @@ None -- all gaps closed.
 | 3 | Fix bus hover not updating type explorer (byte vs character offset) | 2026-03-10 | 63dc780 | Needs Review | [3-in-test-ts-line-239-hovering-over-bus-do](./quick/3-in-test-ts-line-239-hovering-over-bus-do/) |
 | 5 | Default 5-level expansion in type explorer panel | 2026-03-10 | 8bab781 | Verified | [5-the-typescript-explorer-panel-should-exp](./quick/5-the-typescript-explorer-panel-should-exp/) |
 | 6 | Fix type explorer showing module-level types after file edit | 2026-03-10 | 70423e5 | Verified | [6-fix-type-explorer-showing-module-level-t](./quick/6-fix-type-explorer-showing-module-level-t/) |
-| 7 | Add `<leader>tr` keyboard shortcut to restart sidecar | 2026-03-10 | f98e3b1 | | [7-add-a-keyboard-shortcut-leader-tr-for-ts](./quick/7-add-a-keyboard-shortcut-leader-tr-for-ts/) |
+| 7 | Add `<leader>tr` keyboard shortcut to restart sidecar | 2026-03-10 | f98e3b1 | Verified | [7-add-a-keyboard-shortcut-leader-tr-for-ts](./quick/7-add-a-keyboard-shortcut-leader-tr-for-ts/) |
 
 ## Session Continuity
 
