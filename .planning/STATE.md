@@ -5,7 +5,7 @@ milestone_name: milestone
 status: completed
 stopped_at: Completed 03-04-PLAN.md
 last_updated: "2026-03-10T02:48:55.555Z"
-last_activity: 2026-03-10 - Completed quick task 1: Fix array interface types showing {} instead of resolved type in explorer
+last_activity: 2026-03-10 - Completed quick task 3: Fix bus hover not updating type explorer (byte vs character offset)
 progress:
   total_phases: 3
   completed_phases: 3
@@ -98,9 +98,10 @@ None -- all gaps closed.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 1 | Fix array interface types showing {} instead of resolved type in explorer | 2026-03-10 | ab430d8 | [1-fix-array-interface-types-showing-instea](./quick/1-fix-array-interface-types-showing-instea/) |
+| 3 | Fix bus hover not updating type explorer (byte vs character offset) | 2026-03-10 | 63dc780 | [3-in-test-ts-line-239-hovering-over-bus-do](./quick/3-in-test-ts-line-239-hovering-over-bus-do/) |
 
 ## Session Continuity
 
-Last session: 2026-03-10T04:06:00Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-03-10T03:47:00Z
+Stopped at: Completed quick task 3
 Resume file: None
