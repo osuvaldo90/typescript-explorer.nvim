@@ -3,6 +3,26 @@ import { getLanguageService } from "./language-service.js";
 import type { TypeNode, ResolveResult } from "../types.js";
 
 const DEFAULT_TIMEOUT_MS = 5000;
+const DEFAULT_MAX_DEPTH = 15;
+
+/**
+ * Safe wrapper around checker.typeToString that handles stack overflow on recursive types.
+ * Falls back gracefully: NoTruncation -> default truncation -> symbol name -> "[complex type]"
+ */
+function safeTypeToString(checker: ts.TypeChecker, type: ts.Type): string {
+  try {
+    return checker.typeToString(type, undefined, ts.TypeFormatFlags.NoTruncation);
+  } catch {
+    // First fallback: default truncation (may truncate but won't overflow)
+    try {
+      return checker.typeToString(type);
+    } catch {
+      // Last resort: use symbol name or placeholder
+      const symbol = type.getSymbol();
+      return symbol ? symbol.getName() : "[complex type]";
+    }
+  }
+}
 
 /**
  * Entry point: resolve the type at a given file position into a TypeNode tree.
@@ -74,17 +94,23 @@ export function walkType(
   visited: Set<number>,
   startTime: number,
   timeoutMs: number,
+  depth: number = 0,
 ): TypeNode {
   // Check timeout
   if (Date.now() - startTime > timeoutMs) {
     return { kind: "timeout", name, typeString: "[resolution timeout]" };
   }
 
+  // Check max depth to prevent stack overflow before TS internals overflow
+  if (depth > DEFAULT_MAX_DEPTH) {
+    return { kind: "timeout", name, typeString: "[max depth exceeded]" };
+  }
+
   const typeId = (type as any).id as number | undefined;
 
   // Check cycle
   if (typeId !== undefined && visited.has(typeId)) {
-    const typeName = checker.typeToString(type);
+    const typeName = safeTypeToString(checker, type);
     return { kind: "circular", name, typeString: `[circular: ${typeName}]` };
   }
 
@@ -92,26 +118,17 @@ export function walkType(
     visited.add(typeId);
   }
 
-  let typeString: string;
-  try {
-    typeString = checker.typeToString(
-      type,
-      undefined,
-      ts.TypeFormatFlags.NoTruncation,
-    );
-  } catch {
-    // typeToString can stack overflow on recursive/complex types
-    typeString = checker.typeToString(type);
-  }
+  const typeString = safeTypeToString(checker, type);
 
   let result: TypeNode;
+  const nextDepth = depth + 1;
 
   // Order matters for correct classification
   if (type.isUnion()) {
     // Union type -- each branch is a direct child
-    const children = type.types.map((branch, i) => {
-      const branchName = checker.typeToString(branch);
-      return walkType(checker, branch, branchName, new Set(visited), startTime, timeoutMs);
+    const children = type.types.map((branch) => {
+      const branchName = safeTypeToString(checker, branch);
+      return walkType(checker, branch, branchName, new Set(visited), startTime, timeoutMs, nextDepth);
     });
     result = { kind: "union", name, typeString, children };
   } else if (type.isIntersection()) {
@@ -119,14 +136,14 @@ export function walkType(
     const apparent = checker.getApparentType(type);
     const properties = apparent.getProperties();
     const children = properties.map((prop) =>
-      walkSymbol(checker, prop, visited, startTime, timeoutMs),
+      walkSymbol(checker, prop, visited, startTime, timeoutMs, nextDepth),
     );
     result = { kind: "object", name, typeString, children };
   } else if (checker.isTupleType(type)) {
     // Tuple type
     const typeArgs = checker.getTypeArguments(type as ts.TypeReference);
     const children = typeArgs.map((arg, i) =>
-      walkType(checker, arg, `[${i}]`, new Set(visited), startTime, timeoutMs),
+      walkType(checker, arg, `[${i}]`, new Set(visited), startTime, timeoutMs, nextDepth),
     );
     result = { kind: "tuple", name, typeString, children };
   } else if (checker.isArrayType(type)) {
@@ -136,7 +153,7 @@ export function walkType(
     const children: TypeNode[] = [];
     if (elementType) {
       children.push(
-        walkType(checker, elementType, "element", new Set(visited), startTime, timeoutMs),
+        walkType(checker, elementType, "element", new Set(visited), startTime, timeoutMs, nextDepth),
       );
     }
     result = { kind: "array", name, typeString, children };
@@ -154,13 +171,14 @@ export function walkType(
         new Set(visited),
         startTime,
         timeoutMs,
+        nextDepth,
       );
       children.push(paramNode);
     }
 
     const returnType = sig.getReturnType();
     children.push(
-      walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs),
+      walkType(checker, returnType, "returns", new Set(visited), startTime, timeoutMs, nextDepth),
     );
 
     result = { kind: "function", name, typeString, children };
@@ -171,7 +189,7 @@ export function walkType(
     // Object type with properties
     const properties = type.getProperties();
     const children = properties.map((prop) =>
-      walkSymbol(checker, prop, visited, startTime, timeoutMs),
+      walkSymbol(checker, prop, visited, startTime, timeoutMs, nextDepth),
     );
     result = { kind: "object", name, typeString, children };
   } else if (type.flags & (ts.TypeFlags.Enum | ts.TypeFlags.EnumLiteral)) {
@@ -199,10 +217,11 @@ function walkSymbol(
   visited: Set<number>,
   startTime: number,
   timeoutMs: number,
+  depth: number = 0,
 ): TypeNode {
   const type = checker.getTypeOfSymbol(symbol);
   const name = symbol.getName();
-  const node = walkType(checker, type, name, new Set(visited), startTime, timeoutMs);
+  const node = walkType(checker, type, name, new Set(visited), startTime, timeoutMs, depth);
 
   // Check optional
   if (symbol.flags & ts.SymbolFlags.Optional) {

@@ -286,6 +286,50 @@ describe("type-walker", () => {
     });
   });
 
+  describe("recursive class types (GAP-01)", () => {
+    it("resolves EventBus instance without RangeError", () => {
+      const { filePath, position } = fixturePos("classes.ts", "bus =");
+      // Should not throw RangeError: Maximum call stack size exceeded
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node (not crash)");
+      assert.notEqual(result.node.kind, "timeout", "should resolve fully, not timeout");
+    });
+
+    it("resolves EventBus class declaration without throwing", () => {
+      const { filePath, position } = fixturePos("classes.ts", "class EventBus");
+      const result = resolveAtPosition(filePath, position + "class ".length);
+      assert.ok(result.node, "should resolve a node");
+    });
+
+    it("maxDepth guard produces valid node instead of stack overflow", () => {
+      // walkType with depth parameter should stop at maxDepth
+      const { filePath } = fixturePos("classes.ts", "bus =");
+      const service = getLanguageService(filePath);
+      const program = service.getProgram()!;
+      const checker = program.getTypeChecker();
+      const sourceFile = program.getSourceFile(filePath)!;
+
+      const symbols = checker.getSymbolsInScope(sourceFile, 0xffffffff);
+      const busSym = symbols.find((s) => s.getName() === "bus");
+      assert.ok(busSym, "should find bus symbol");
+      const busType = checker.getTypeOfSymbol(busSym);
+
+      // Call walkType -- should not throw
+      const result = walkType(checker, busType, "bus", new Set(), Date.now(), 5000);
+      assert.ok(result, "should return a valid node");
+      assert.ok(result.typeString.length > 0, "typeString should be non-empty");
+    });
+
+    it("existing cycle detection tests still pass (tree fixture)", () => {
+      const { filePath, position } = fixturePos("simple.ts", "tree:");
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node");
+      assert.equal(result.node.kind, "object");
+      const circular = findDescendant(result.node, (n) => n.kind === "circular");
+      assert.ok(circular, "should still find circular markers in tree");
+    });
+  });
+
   describe("primitive and literal types", () => {
     it("resolves primitive type", () => {
       const { filePath, position } = fixturePos("simple.ts", "num:");
