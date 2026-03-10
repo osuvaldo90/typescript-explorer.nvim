@@ -28,12 +28,12 @@
 
 ### Panel
 
-- [ ] **PANE-01**: User can open a persistent side panel (vertical split) showing the type tree
+- [x] **PANE-01**: User can open a persistent side panel (vertical split) showing the type tree
 - [x] **PANE-02**: Tree nodes are collapsible/expandable with keyboard controls
 - [x] **PANE-03**: Default expand depth is 1 level (root + immediate children)
-- [ ] **PANE-04**: Panel updates automatically on cursor move (debounced)
-- [ ] **PANE-05**: Panel replaces the entire tree when cursor moves to a new symbol
-- [ ] **PANE-06**: User can open/close the panel with a command
+- [x] **PANE-04**: Panel updates automatically on cursor move (debounced)
+- [x] **PANE-05**: Panel replaces the entire tree when cursor moves to a new symbol
+- [x] **PANE-06**: User can open/close the panel with a command
 
 ## v2 Requirements
 
@@ -84,12 +84,12 @@
 | TRES-07 | Phase 2 | Complete |
 | TRES-08 | Phase 2 | Complete |
 | TRES-09 | Phase 2 | Complete |
-| PANE-01 | Phase 3 | Pending |
+| PANE-01 | Phase 3 | Complete |
 | PANE-02 | Phase 3 | Complete |
 | PANE-03 | Phase 3 | Complete |
-| PANE-04 | Phase 3 | Pending |
-| PANE-05 | Phase 3 | Pending |
-| PANE-06 | Phase 3 | Pending |
+| PANE-04 | Phase 3 | Complete |
+| PANE-05 | Phase 3 | Complete |
+| PANE-06 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 21 total
