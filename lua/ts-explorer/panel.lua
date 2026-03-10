@@ -101,23 +101,47 @@ local function _resolve_at_cursor(file, bufnr)
   local cursor = vim.api.nvim_win_get_cursor(0)
   local line = cursor[1]
   local col = cursor[2]
-  local byte_offset = vim.fn.line2byte(line) - 1 + col
-  if byte_offset < 0 then
+
+  -- TypeScript uses UTF-16 character offsets, not byte offsets.
+  -- We must convert Neovim's byte-based positions to character counts
+  -- to handle files containing multi-byte UTF-8 characters.
+  local char_offset = 0
+  if line > 1 then
+    local prev_lines = vim.api.nvim_buf_get_lines(bufnr, 0, line - 1, false)
+    for _, l in ipairs(prev_lines) do
+      char_offset = char_offset + vim.fn.strchars(l) + 1 -- +1 for newline
+    end
+  end
+  -- Add character offset within the current line
+  local cur_line_text = vim.api.nvim_buf_get_lines(bufnr, line - 1, line, false)[1] or ""
+  local col_text = cur_line_text:sub(1, col)
+  char_offset = char_offset + vim.fn.strchars(col_text)
+
+  if char_offset < 0 then
     return
   end
 
   state.request_id = state.request_id + 1
   local my_id = state.request_id
 
-  rpc.request("resolve", { filePath = file, position = byte_offset }, function(err, result)
+  local log = require("ts-explorer.log")
+  log.debug("resolve: requesting at char_offset=" .. char_offset .. " file=" .. file)
+
+  rpc.request("resolve", { filePath = file, position = char_offset }, function(err, result)
+    log.debug("resolve callback: my_id=" .. my_id .. " current_id=" .. state.request_id)
     if my_id ~= state.request_id then
+      log.debug("resolve: stale response discarded")
       return
     end
     if err then
+      log.debug("resolve: error " .. vim.inspect(err))
       return
     end
     if result and result.node and result.node ~= vim.NIL then
+      log.debug("resolve: got node kind=" .. tostring(result.node.kind) .. " name=" .. tostring(result.node.name))
       M._update_tree(result.node)
+    else
+      log.debug("resolve: no node in result")
     end
     -- If result.node is nil/NIL, keep last result (no flicker)
   end)

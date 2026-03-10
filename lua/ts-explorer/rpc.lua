@@ -19,7 +19,13 @@ function M._process_line(line)
   if line == "" then
     return
   end
+  local log = require("ts-explorer.log")
+  log.debug("RPC: received line, length=" .. #line)
   local ok, msg = pcall(vim.json.decode, line)
+  if not ok then
+    log.error("RPC: JSON decode failed: " .. tostring(msg) .. " (line length=" .. #line .. ")")
+    return
+  end
   if ok and msg.id and pending[msg.id] then
     local cb = pending[msg.id]
     pending[msg.id] = nil
