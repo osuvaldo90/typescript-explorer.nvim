@@ -7,6 +7,16 @@ M.defaults = {
   log = {
     level = "error",
   },
+  panel = {
+    width = 40,
+    position = "left", -- "left" or "right"
+    keymaps = {
+      toggle = "<CR>",
+      expand_recursive = "L",
+      collapse_recursive = "H",
+      close = { "q", "<Esc>" },
+    },
+  },
 }
 
 M.values = {}
