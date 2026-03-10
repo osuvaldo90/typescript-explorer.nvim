@@ -59,11 +59,11 @@ Plans:
   2. Tree nodes are expandable and collapsible with keyboard controls, defaulting to 1 level of expansion
   3. Moving the cursor to a different symbol automatically replaces the panel contents with the new type tree (debounced)
   4. User can close the panel with the same command that opens it
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md — Tree rendering engine (TypeNode to lines) and config panel defaults
+- [ ] 03-02-PLAN.md — Panel window lifecycle, cursor-follow, keymaps, and command wiring
 
 ## Progress
 
@@ -74,4 +74,4 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Sidecar Communication | 2/2 | Complete   | 2026-03-09 |
 | 2. Type Resolution Engine | 1/3 | In progress | - |
-| 3. Panel UI and Integration | 0/TBD | Not started | - |
+| 3. Panel UI and Integration | 0/2 | Not started | - |
