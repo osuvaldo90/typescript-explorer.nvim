@@ -38,12 +38,10 @@ created: 2026-03-09
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 03-01-01 | 01 | 1 | PANE-01 | manual-only | N/A (requires Neovim runtime) | N/A | ⬜ pending |
-| 03-01-02 | 01 | 1 | PANE-06 | manual-only | N/A (requires Neovim runtime) | N/A | ⬜ pending |
-| 03-02-01 | 02 | 1 | PANE-02 | manual-only | N/A (requires Neovim runtime) | N/A | ⬜ pending |
-| 03-02-02 | 02 | 1 | PANE-03 | manual-only | N/A (requires Neovim runtime) | N/A | ⬜ pending |
-| 03-03-01 | 03 | 2 | PANE-04 | manual-only | N/A (requires Neovim runtime) | N/A | ⬜ pending |
-| 03-03-02 | 03 | 2 | PANE-05 | manual-only | N/A (requires Neovim runtime) | N/A | ⬜ pending |
+| 03-01-T1 | 01 | 1 | PANE-02, PANE-03 | manual-only | `nvim --headless -l sidecar/tmp.lua` | N/A | ⬜ pending |
+| 03-01-T2 | 01 | 1 | PANE-02, PANE-03 | automated | `make test` | N/A | ⬜ pending |
+| 03-02-T1 | 02 | 2 | PANE-01, PANE-04, PANE-05, PANE-06 | manual-only | `make test` | N/A | ⬜ pending |
+| 03-02-T2 | 02 | 2 | PANE-01, PANE-04, PANE-05, PANE-06 | checkpoint:human-verify | `make test` | N/A | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
