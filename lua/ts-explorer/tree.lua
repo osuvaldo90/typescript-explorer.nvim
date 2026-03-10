@@ -78,7 +78,14 @@ local function _render_node(tree_state, node, path, depth, lines, line_map)
     suffix = "?"
   end
 
-  local line = indent .. marker .. prefix .. node.name .. suffix .. ": " .. node.typeString
+  -- For literal nodes where name equals typeString (e.g. union branch "error": "error"),
+  -- show just the value to avoid redundancy
+  local line
+  if node.name == node.typeString then
+    line = indent .. marker .. prefix .. node.name .. suffix
+  else
+    line = indent .. marker .. prefix .. node.name .. suffix .. ": " .. node.typeString
+  end
   lines[#lines + 1] = line
   line_map[#line_map + 1] = path
 

@@ -92,11 +92,17 @@ export function walkType(
     visited.add(typeId);
   }
 
-  const typeString = checker.typeToString(
-    type,
-    undefined,
-    ts.TypeFormatFlags.NoTruncation,
-  );
+  let typeString: string;
+  try {
+    typeString = checker.typeToString(
+      type,
+      undefined,
+      ts.TypeFormatFlags.NoTruncation,
+    );
+  } catch {
+    // typeToString can stack overflow on recursive/complex types
+    typeString = checker.typeToString(type);
+  }
 
   let result: TypeNode;
 
