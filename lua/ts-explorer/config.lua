@@ -9,6 +9,7 @@ M.defaults = {
   },
   keybindings = {
     toggle_panel = "<leader>te", -- set to false to disable
+    restart_sidecar = "<leader>tr", -- set to false to disable
   },
   panel = {
     width = 40,

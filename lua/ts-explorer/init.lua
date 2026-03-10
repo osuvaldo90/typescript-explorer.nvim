@@ -10,6 +10,12 @@ function M.setup(opts)
       require("ts-explorer.panel").toggle()
     end, { desc = "Toggle TypeScript Explorer panel", silent = true })
   end
+
+  if cfg.keybindings and cfg.keybindings.restart_sidecar then
+    vim.keymap.set("n", cfg.keybindings.restart_sidecar, function()
+      require("ts-explorer.sidecar").restart()
+    end, { desc = "Restart TypeScript Explorer sidecar", silent = true })
+  end
 end
 
 return M
