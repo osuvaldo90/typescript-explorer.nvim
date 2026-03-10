@@ -359,6 +359,67 @@ describe("type-walker", () => {
     });
   });
 
+  describe("cascading gap closure (GAP-04/05/06)", () => {
+    it("GAP-04: parsed variable resolves to Result type, not function", () => {
+      const { filePath, position } = fixturePos("complex.ts", "parsed = parse");
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node");
+      assert.equal(result.node.name, "parsed", "should resolve the 'parsed' variable");
+      assert.ok(
+        result.node.typeString.includes("Result"),
+        `typeString should contain 'Result', got "${result.node.typeString}"`,
+      );
+      // Must NOT be a function type (that would mean we resolved 'parse' instead of 'parsed')
+      assert.notEqual(result.node.kind, "function", "should not be function kind (that would be the parse function)");
+    });
+
+    it("GAP-05: bus resolves without crash or timeout", () => {
+      const { filePath, position } = fixturePos("complex.ts", "bus = new");
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node (not crash)");
+      assert.notEqual(result.node.kind, "timeout", "should not timeout");
+      assert.ok(
+        result.node.typeString.includes("EventBus"),
+        `typeString should contain 'EventBus', got "${result.node.typeString}"`,
+      );
+      assert.ok(result.node.children, "should have children");
+      assert.ok(result.node.children.length > 0, "should have at least one child");
+    });
+
+    it("GAP-05: handler resolves without crash or timeout", () => {
+      const { filePath, position } = fixturePos("complex.ts", "handler = ");
+      const result = resolveAtPosition(filePath, position);
+      assert.ok(result.node, "should resolve a node");
+      assert.notEqual(result.node.kind, "timeout", "should not timeout");
+      assert.equal(result.node.kind, "function", "handler should be function kind");
+    });
+
+    it("GAP-06: TypeCheckEvent diagnostics has array children", () => {
+      const { filePath, position } = fixturePos("complex.ts", "interface TypeCheckEvent");
+      const result = resolveAtPosition(filePath, position + "interface ".length);
+      assert.ok(result.node, "should resolve a node");
+      assert.equal(result.node.kind, "object", "TypeCheckEvent should be object kind");
+      assert.ok(result.node.children, "should have children");
+
+      const diagChild = findChild(result.node, "diagnostics");
+      assert.ok(diagChild, "should have 'diagnostics' child");
+      assert.equal(diagChild.kind, "array", "diagnostics should be array kind");
+      assert.ok(
+        diagChild.typeString.includes("Diagnostic"),
+        `diagnostics typeString should contain 'Diagnostic', got "${diagChild.typeString}"`,
+      );
+      assert.ok(diagChild.children, "diagnostics should have children (element type)");
+      assert.ok(diagChild.children.length > 0, "diagnostics should have at least one child");
+
+      // The element child should be an object (Diagnostic) with its own children
+      const element = findChild(diagChild, "element");
+      assert.ok(element, "should have 'element' child");
+      assert.equal(element.kind, "object", "element should be object kind (Diagnostic)");
+      assert.ok(element.children, "Diagnostic element should have children (message, severity, range)");
+      assert.ok(element.children.length >= 3, `Diagnostic should have at least 3 children, got ${element.children.length}`);
+    });
+  });
+
   describe("private class members (GAP-03)", () => {
     it("resolves private member with actual type, not any", () => {
       // Resolve instance to get the class type with members as direct children
